@@ -7,7 +7,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ProtagonistCameraControlloer : MonoBehaviour
+public class ProtagonistCameraController : MonoBehaviour
 {
     public GameObject protagonist;
 
