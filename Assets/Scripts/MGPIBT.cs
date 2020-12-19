@@ -10,6 +10,9 @@ using TreeSharpPlus;
 
 public class MGPIBT : MonoBehaviour
 {
+    public GameObject protagonist;
+    public GameObject antagonists;
+
     private BehaviorAgent behaviorAgent;
 
     // Start is called before the first frame update
@@ -26,6 +29,13 @@ public class MGPIBT : MonoBehaviour
         
     }
 
+    protected Node BuildAntagonistsRoot(Transform target)
+    {
+        Val<Vector3> position = Val.V(() => target.position);
+
+        return new Selector();
+    }
+
     protected Node BuildTreeRoot()
     {
         Node gameIBT = new SelectorParallel(
@@ -33,8 +43,8 @@ public class MGPIBT : MonoBehaviour
                                 new Selector(
                                     )),
                             new DecoratorLoopSuccess(
-                                new Selector(
-                                    )));
+                                this.BuildAntagonistsRoot(protagonist.transform)
+                                ));
         return gameIBT;
     }
 }
