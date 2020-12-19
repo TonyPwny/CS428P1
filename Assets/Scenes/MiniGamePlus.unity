@@ -324,6 +324,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1486108915}
   - component: {fileID: 1486108916}
+  - component: {fileID: 1486108917}
   m_Layer: 0
   m_Name: Updater
   m_TagString: Untagged
@@ -358,6 +359,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   updateTime: 0.05
+--- !u!114 &1486108917
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1486108914}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 15e410933b0b28e4c86cce4feade2fa8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1510046684
 GameObject:
   m_ObjectHideFlags: 0
