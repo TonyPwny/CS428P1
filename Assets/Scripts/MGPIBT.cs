@@ -29,7 +29,12 @@ public class MGPIBT : MonoBehaviour
     protected Node BuildTreeRoot()
     {
         Node gameIBT = new SelectorParallel(
-                            );
+                            new DecoratorLoopSuccess(
+                                new Selector(
+                                    )),
+                            new DecoratorLoopSuccess(
+                                new Selector(
+                                    )));
         return gameIBT;
     }
 }
