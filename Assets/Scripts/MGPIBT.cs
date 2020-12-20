@@ -11,7 +11,7 @@ using TreeSharpPlus;
 public class MGPIBT : MonoBehaviour
 {
     public GameObject protagonist;
-    public Transform antagonists;
+    public Transform antagonists, exit, key, key_starting_location;
     public static float DESIRED_SPEED = 10f;
     public static float DESIRED_JUMP_POWER = 10f;
 
@@ -31,7 +31,7 @@ public class MGPIBT : MonoBehaviour
         
     }
 
-    protected Node ST_Patrol()
+    protected Node Patrol()
     {
         Vector3 desiredDirection;
 
@@ -44,42 +44,67 @@ public class MGPIBT : MonoBehaviour
         });
     }
 
-    protected Node ST_Pursue(Transform target)
+    protected Node Pursue(Transform target)
     {
         Vector3 desiredDirection;
 
         return new LeafInvoke(() =>
         {
-            foreach (Transform antagonist in antagonists)
-            {
-                desiredDirection = new Vector3(Random.Range(-1, 2), 0, Random.Range(-1, 2));
-                antagonist.GetComponent<Rigidbody>().AddForce(desiredDirection * DESIRED_SPEED);
-            }
+            print("Pursue");
         });
     }
 
-    protected Node ST_Evade(Transform target)
+    protected Node Evade(Transform target)
     {
         Vector3 desiredDirection;
 
         return new LeafInvoke(() =>
         {
-            foreach (Transform antagonist in antagonists)
-            {
-                desiredDirection = new Vector3(Random.Range(-1, 2), 0, Random.Range(-1, 2));
-                antagonist.GetComponent<Rigidbody>().AddForce(desiredDirection * DESIRED_SPEED);
-            }
+            print("Evade");
+        });
+    }
+    protected Node GetKey(Transform key)
+    {
+        Vector3 desiredDirection;
+
+        return new LeafInvoke(() =>
+        {
+            print("GetKey");
         });
     }
 
-    protected Node BuildAntagonistsRoot(Transform target)
+    protected Node GoToExit(Transform exit)
+    {
+        Vector3 desiredDirection;
+
+        return new LeafInvoke(() =>
+        {
+            print("GoToExit");
+        });
+    }
+
+    protected Node ST_ProtagonistRoot(Transform key, Transform exit, Transform enemies)
+    {
+        Node antagonistsIBT = new Sequence(
+            // should be LoopSuccess, using Loop for debugging
+            new DecoratorLoop(
+                this.GetKey(key)
+                ),
+            new DecoratorLoop(
+                this.GoToExit(exit)
+                ));
+
+        return antagonistsIBT;
+    }
+
+    protected Node ST_AntagonistsRoot(Transform protagonist)
     {
         Node antagonistsIBT = new Sequence(
             new DecoratorLoop(
-                this.ST_Patrol()
+                this.Patrol()
                 ),
             new DecoratorLoop(
-                this.ST_Pursue(target)
+                this.Pursue(protagonist)
                 ));
 
         return antagonistsIBT;
@@ -89,13 +114,9 @@ public class MGPIBT : MonoBehaviour
     {
         Node gameIBT = new SelectorParallel(
                             new DecoratorLoopSuccess(
-                                new Selector(
-                                    new DecoratorLoop(
-                                        new Selector(
-
-                                            )))),
+                                this.ST_ProtagonistRoot(key, exit, antagonists.transform)),
                             new DecoratorLoopSuccess(
-                                this.BuildAntagonistsRoot(protagonist.transform)
+                                this.ST_AntagonistsRoot(protagonist.transform)
                                 ));
         return gameIBT;
     }
