@@ -12,10 +12,10 @@ GameObject:
   - component: {fileID: 3715017809407096436}
   - component: {fileID: 8300930449158654013}
   - component: {fileID: 2825339892486232877}
+  - component: {fileID: -8497604773118014786}
   - component: {fileID: -3321771922625614747}
   - component: {fileID: 3993437688339413078}
   - component: {fileID: -3048721057373963750}
-  - component: {fileID: -8497604773118014786}
   m_Layer: 0
   m_Name: Antagonist
   m_TagString: Untagged
@@ -95,6 +95,19 @@ SphereCollider:
   serializedVersion: 2
   m_Radius: 0.5
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!135 &-8497604773118014786
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1826704274996990644}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 2
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!54 &-3321771922625614747
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -147,16 +160,3 @@ NavMeshAgent:
   m_BaseOffset: 0.5
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
---- !u!135 &-8497604773118014786
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1826704274996990644}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 1
-  m_Center: {x: 0, y: 0, z: 0}

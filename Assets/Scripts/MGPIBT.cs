@@ -37,9 +37,22 @@ public class MGPIBT : MonoBehaviour
 
         return new LeafInvoke(() =>
         {
+            print("Patrol");
+
+            bool detection = false; // true if protagonist is "in view" or key is "in view" and not at key_starting_location
+
             foreach (Transform antagonist in antagonists) {
                 desiredDirection = new Vector3(Random.Range(-1, 2), 0, Random.Range(-1, 2));
                 antagonist.GetComponent<Rigidbody>().AddForce(desiredDirection * DESIRED_SPEED);
+            }
+
+            if (!detection) // fail (loop again) if protagonist is not "in view" or key is not "in view" and not at key_starting_location, otherwise succeed (break)
+            {
+                return RunStatus.Failure;
+            }
+            else // successfully patrolled (break)
+            {
+                return RunStatus.Success;
             }
         });
     }
@@ -48,9 +61,33 @@ public class MGPIBT : MonoBehaviour
     {
         Vector3 desiredDirection;
 
+        bool detection = true; // true if protagonist or key is "in view"
+
         return new LeafInvoke(() =>
         {
             print("Pursue");
+
+            foreach (Transform antagonist in antagonists)
+            {
+                desiredDirection = target.transform.position - antagonist.transform.position;
+                antagonist.GetComponent<Rigidbody>().AddForce(desiredDirection * DESIRED_SPEED);
+            }
+
+            if (detection)
+            {
+                if (false)
+                {
+                    return RunStatus.Success;
+                }
+                else
+                {
+                    return RunStatus.Failure;
+                }
+            }
+            else
+            {
+                return RunStatus.Failure;
+            }
         });
     }
 
@@ -83,7 +120,7 @@ public class MGPIBT : MonoBehaviour
         });
     }
 
-    protected Node ST_ProtagonistRoot(Transform key, Transform exit, Transform enemies)
+    protected Node ST_ProtagonistRoot(Transform key, Transform exit, Transform antagonists)
     {
         Node protagonistIBT = new Sequence(
             // should be LoopSuccess, using Loop for debugging
@@ -97,14 +134,17 @@ public class MGPIBT : MonoBehaviour
         return protagonistIBT;
     }
 
-    protected Node ST_AntagonistsRoot(Transform protagonist, Transform key)
+    protected Node ST_AntagonistsRoot(Transform protagonist, Transform key, Transform key_starting_location)
     {
+        Transform target = null; // assign target to either protagnoist or key
         Node antagonistsIBT = new Sequence(
-            new DecoratorLoop(
+            // loop until protagonist is "in view" or key is "in view" and not at key_starting_location
+            new DecoratorLoopSuccess(
                 this.Patrol()
                 ),
-            new DecoratorLoop(
-                this.Pursue(protagonist)
+            // if protagonist is "in view" and key is either at key_starting_location or not "in view", otherwise fail/break
+            new DecoratorLoopSuccess(
+                this.Pursue(target)
                 ));
 
         return antagonistsIBT;
@@ -114,9 +154,9 @@ public class MGPIBT : MonoBehaviour
     {
         Node gameIBT = new SelectorParallel(
                             new DecoratorLoopSuccess(
-                                this.ST_ProtagonistRoot(key, exit, antagonists.transform)),
+                                this.ST_ProtagonistRoot(key, exit, antagonists)),
                             new DecoratorLoopSuccess(
-                                this.ST_AntagonistsRoot(protagonist.transform, key)
+                                this.ST_AntagonistsRoot(protagonist.transform, key, key_starting_location)
                                 ));
         return gameIBT;
     }
