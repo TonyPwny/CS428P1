@@ -7,8 +7,6 @@ TagManager:
   - Pick Up
   - Floor
   - Wall
-  - Agent
-  - Adversary
   layers:
   - Default
   - TransparentFX

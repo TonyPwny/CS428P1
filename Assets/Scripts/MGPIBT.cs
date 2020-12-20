@@ -11,7 +11,9 @@ using TreeSharpPlus;
 public class MGPIBT : MonoBehaviour
 {
     public GameObject protagonist;
-    public GameObject antagonists;
+    public Transform antagonists;
+    public static float DESIRED_SPEED = 10f;
+    public static float DESIRED_JUMP_POWER = 10f;
 
     private BehaviorAgent behaviorAgent;
 
@@ -29,11 +31,27 @@ public class MGPIBT : MonoBehaviour
         
     }
 
+    protected Node ST_Patrol()
+    {
+        Vector3 desiredDirection;
+
+        desiredDirection = new Vector3(Random.value, 0, Random.value);
+
+        return new LeafInvoke(() =>
+        {
+            foreach (Transform antagonist in antagonists) {
+                antagonist.GetComponent<Rigidbody>().AddForce(desiredDirection * DESIRED_SPEED);
+            }
+        });
+    }
+
     protected Node BuildAntagonistsRoot(Transform target)
     {
-        Val<Vector3> position = Val.V(() => target.position);
+        Node antagonistsIBT = new Sequence(
+            this.ST_Patrol()
+            );
 
-        return new Selector();
+        return antagonistsIBT;
     }
 
     protected Node BuildTreeRoot()
