@@ -44,6 +44,7 @@ public class ProtagonistController : MonoBehaviour
         print("moveHorizontal: " + moveHorizontal);
         print("moveVertical: " + moveVertical);
         rb.AddForce(movement * speed);
+        print("adding force: " + movement * speed);
     }
 
     void OnCollisionExit(Collision collision)

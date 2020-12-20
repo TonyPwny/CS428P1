@@ -26,4 +26,9 @@ public class AntagonistController : MonoBehaviour
     {
         
     }
+
+    public Vector3 GetVelocity()
+    {
+        return rb.velocity;
+    }
 }

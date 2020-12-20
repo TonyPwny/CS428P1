@@ -33,7 +33,7 @@ public class MGPIBT : MonoBehaviour
 
     protected Node Patrol()
     {
-        Vector3 desiredDirection;
+        Vector3 movement;
 
         return new LeafInvoke(() =>
         {
@@ -42,8 +42,18 @@ public class MGPIBT : MonoBehaviour
             bool detection = false; // true if protagonist is "in view" or key is "in view" and not at key_starting_location
 
             foreach (Transform antagonist in antagonists) {
-                desiredDirection = new Vector3(Random.Range(-1, 2), 0, Random.Range(-1, 2));
-                antagonist.GetComponent<Rigidbody>().AddForce(desiredDirection * DESIRED_SPEED);
+                if (antagonist.GetComponent<Rigidbody>().velocity == Vector3.zero)
+                {
+                    int moveHorizontal = Random.Range(-1, 2);
+                    int moveVertical = Random.Range(-1, 2);
+                    movement = new Vector3(moveHorizontal, 0.0f, moveVertical) * DESIRED_SPEED;
+                    antagonist.GetComponent<Rigidbody>().AddForce(movement);
+                }
+                else
+                {
+                    movement = antagonist.GetComponent<Rigidbody>().velocity * DESIRED_SPEED;
+                    antagonist.GetComponent<Rigidbody>().AddForce(Vector3.ClampMagnitude(movement, 10f));
+                }
             }
 
             if (!detection) // fail (loop again) if protagonist is not "in view" or key is not "in view" and not at key_starting_location, otherwise succeed (break)
