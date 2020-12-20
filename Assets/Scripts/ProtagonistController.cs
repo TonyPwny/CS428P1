@@ -41,6 +41,8 @@ public class ProtagonistController : MonoBehaviour
             movement.Set(moveHorizontal, jumpPower, moveVertical);
         }
 
+        print("moveHorizontal: " + moveHorizontal);
+        print("moveVertical: " + moveVertical);
         rb.AddForce(movement * speed);
     }
 

@@ -38,7 +38,35 @@ public class MGPIBT : MonoBehaviour
         return new LeafInvoke(() =>
         {
             foreach (Transform antagonist in antagonists) {
-                desiredDirection = new Vector3(Random.value, 0, Random.value);
+                desiredDirection = new Vector3(Random.Range(-1, 2), 0, Random.Range(-1, 2));
+                antagonist.GetComponent<Rigidbody>().AddForce(desiredDirection * DESIRED_SPEED);
+            }
+        });
+    }
+
+    protected Node ST_Pursue(Transform target)
+    {
+        Vector3 desiredDirection;
+
+        return new LeafInvoke(() =>
+        {
+            foreach (Transform antagonist in antagonists)
+            {
+                desiredDirection = new Vector3(Random.Range(-1, 2), 0, Random.Range(-1, 2));
+                antagonist.GetComponent<Rigidbody>().AddForce(desiredDirection * DESIRED_SPEED);
+            }
+        });
+    }
+
+    protected Node ST_Evade(Transform target)
+    {
+        Vector3 desiredDirection;
+
+        return new LeafInvoke(() =>
+        {
+            foreach (Transform antagonist in antagonists)
+            {
+                desiredDirection = new Vector3(Random.Range(-1, 2), 0, Random.Range(-1, 2));
                 antagonist.GetComponent<Rigidbody>().AddForce(desiredDirection * DESIRED_SPEED);
             }
         });
@@ -47,8 +75,12 @@ public class MGPIBT : MonoBehaviour
     protected Node BuildAntagonistsRoot(Transform target)
     {
         Node antagonistsIBT = new Sequence(
-            this.ST_Patrol()
-            );
+            new DecoratorLoop(
+                this.ST_Patrol()
+                ),
+            new DecoratorLoop(
+                this.ST_Pursue(target)
+                ));
 
         return antagonistsIBT;
     }
@@ -58,7 +90,10 @@ public class MGPIBT : MonoBehaviour
         Node gameIBT = new SelectorParallel(
                             new DecoratorLoopSuccess(
                                 new Selector(
-                                    )),
+                                    new DecoratorLoop(
+                                        new Selector(
+
+                                            )))),
                             new DecoratorLoopSuccess(
                                 this.BuildAntagonistsRoot(protagonist.transform)
                                 ));
