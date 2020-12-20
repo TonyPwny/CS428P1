@@ -35,11 +35,10 @@ public class MGPIBT : MonoBehaviour
     {
         Vector3 desiredDirection;
 
-        desiredDirection = new Vector3(Random.value, 0, Random.value);
-
         return new LeafInvoke(() =>
         {
             foreach (Transform antagonist in antagonists) {
+                desiredDirection = new Vector3(Random.value, 0, Random.value);
                 antagonist.GetComponent<Rigidbody>().AddForce(desiredDirection * DESIRED_SPEED);
             }
         });
