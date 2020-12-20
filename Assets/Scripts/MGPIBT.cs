@@ -85,7 +85,7 @@ public class MGPIBT : MonoBehaviour
 
     protected Node ST_ProtagonistRoot(Transform key, Transform exit, Transform enemies)
     {
-        Node antagonistsIBT = new Sequence(
+        Node protagonistIBT = new Sequence(
             // should be LoopSuccess, using Loop for debugging
             new DecoratorLoop(
                 this.GetKey(key)
@@ -94,10 +94,10 @@ public class MGPIBT : MonoBehaviour
                 this.GoToExit(exit)
                 ));
 
-        return antagonistsIBT;
+        return protagonistIBT;
     }
 
-    protected Node ST_AntagonistsRoot(Transform protagonist)
+    protected Node ST_AntagonistsRoot(Transform protagonist, Transform key)
     {
         Node antagonistsIBT = new Sequence(
             new DecoratorLoop(
@@ -116,7 +116,7 @@ public class MGPIBT : MonoBehaviour
                             new DecoratorLoopSuccess(
                                 this.ST_ProtagonistRoot(key, exit, antagonists.transform)),
                             new DecoratorLoopSuccess(
-                                this.ST_AntagonistsRoot(protagonist.transform)
+                                this.ST_AntagonistsRoot(protagonist.transform, key)
                                 ));
         return gameIBT;
     }
