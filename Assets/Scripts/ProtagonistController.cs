@@ -6,12 +6,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class ProtagonistController : MonoBehaviour
 {
-    public float speed;
-    public float jumpPower;
+    public float speed = 10f;
+    public float jumpPower = 10f;
 
+    private NavMeshAgent nma;
     private Rigidbody rb;
     private bool isGrounded = true;
 
@@ -41,10 +43,7 @@ public class ProtagonistController : MonoBehaviour
             movement.Set(moveHorizontal, jumpPower, moveVertical);
         }
 
-        print("moveHorizontal: " + moveHorizontal);
-        print("moveVertical: " + moveVertical);
         rb.AddForce(movement * speed);
-        print("adding force: " + movement * speed);
     }
 
     void OnCollisionExit(Collision collision)

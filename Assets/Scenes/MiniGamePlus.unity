@@ -165,6 +165,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a751e4bab47a158459e122a1c5d066ce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  speed: 10
+  jumpPower: 10
 --- !u!1 &543190910 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 7852635647923595963, guid: 308417dccbbe24d498db5a09f7c975fe,
@@ -336,7 +338,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 96b4e575482de9140bdabcccf4d92808, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  protagonist: {fileID: 0}
+  protagonist: {fileID: 543190910}
 --- !u!1 &1353345652
 GameObject:
   m_ObjectHideFlags: 0
