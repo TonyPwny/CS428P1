@@ -165,6 +165,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a751e4bab47a158459e122a1c5d066ce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &543190910 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7852635647923595963, guid: 308417dccbbe24d498db5a09f7c975fe,
+    type: 3}
+  m_PrefabInstance: {fileID: 920189024}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &920189024
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -554,7 +560,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 15e410933b0b28e4c86cce4feade2fa8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  protagonist: {fileID: 0}
+  protagonist: {fileID: 543190910}
   antagonists: {fileID: 200564095}
   exit: {fileID: 0}
   key: {fileID: 0}
