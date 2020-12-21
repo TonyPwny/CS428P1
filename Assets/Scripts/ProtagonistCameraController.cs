@@ -30,7 +30,7 @@ public class ProtagonistCameraController : MonoBehaviour
     {
         transform.position = protagonist.transform.position + offset;
 
-        if (protagonist.transform.position.y < -5)
+        if (protagonist.transform.position.y < -10)
         {
             transform.position = new Vector3(0, 8, -12);
         }

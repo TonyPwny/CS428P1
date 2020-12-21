@@ -123,15 +123,7 @@ public class AntagonistController : MonoBehaviour
 
     private void SetSpeed()
     {
-        if (GetComponentInParent<AntagonistController>())
-        {
-            speed = GetComponentInParent<AntagonistsController>().GetSpeed();
-        }
-        else
-        {
-            print("No parent");
-            speed = 100f;
-        }
+        speed = GetComponentInParent<AntagonistsController>().GetSpeed();
     }
 
     private void SetJumpPower()
