@@ -65,6 +65,7 @@ public class MGPIBT : MonoBehaviour
                 {
                     if (hit.distance <= 5)
                     {
+                        force -= desiredDirection * DESIRED_SPEED;
                         Ray wallRaySide = new Ray(antagonist.transform.position, Vector3.Cross(Vector3.up, desiredDirection));
                         if (Physics.Raycast(wallRaySide, out RaycastHit hitSide))
                         {
