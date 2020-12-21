@@ -23,7 +23,7 @@ public class GamePlusController : MonoBehaviour
 
     private int timeLimitSeconds;
     private static bool announcementActive = false;
-    private bool gameOver = false;
+    private bool gameOver = true;
     private bool protagonistFell = false;
 
     private void Awake()
@@ -62,7 +62,7 @@ public class GamePlusController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetButton("Submit") && !inPlay && !gameOver)
+        if (Input.GetButton("Submit") && !inPlay && gameOver)
         {
             authorshipText.text = "";
             promptText.text = "Press Esc to Start Over";
@@ -76,7 +76,7 @@ public class GamePlusController : MonoBehaviour
         if (Input.GetButton("Cancel"))
         {
             inPlay = false;
-            gameOver = false;
+            gameOver = true;
             SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         }
 
@@ -106,7 +106,7 @@ public class GamePlusController : MonoBehaviour
             gameOver = true;
             gameOverText.text = "Time's up!\n" +
                 "Retry?\n" +
-                "(Press Enter/Return)";
+                "(Press ESC)";
             MakeAnnouncement("How exciting!! Or boring??", 0);
         }
 
@@ -116,7 +116,7 @@ public class GamePlusController : MonoBehaviour
             gameOver = true;
             gameOverText.text = "You fell!\n" +
                 "Retry?\n" +
-                "(Press Enter/Return)";
+                "(Press ESC)";
             MakeAnnouncement("Be careful next time...", 0);
         }
     }

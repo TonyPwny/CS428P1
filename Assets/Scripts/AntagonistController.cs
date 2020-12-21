@@ -42,7 +42,6 @@ public class AntagonistController : MonoBehaviour
 
     private Vector3 CalculatePatrolForce()
     {
-        print("Patrol");
         Vector3 desiredDirection, desiredDirectionSide;
         float moveHorizontal, moveVertical;
         var force = Vector3.zero;

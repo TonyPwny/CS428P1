@@ -12,12 +12,12 @@ public class ProtagonistController : MonoBehaviour
 {
     public float speed = 10f;
     public float jumpPower = 10f;
+    public static bool hasKey = false;
 
     private NavMeshAgent nma;
     private Rigidbody rb;
     private KeyController key;
     private bool isGrounded = true;
-    private bool hasKey = false;
 
     // Start is called before the first frame update
     void Start()
@@ -30,10 +30,11 @@ public class ProtagonistController : MonoBehaviour
     {
         if (hasKey)
         {
-            print("hasKey");
+            print("Has key");
         }
         else
         {
+            print("Does not have key.");
             key = null;
         }
 
@@ -48,6 +49,8 @@ public class ProtagonistController : MonoBehaviour
         this.key = key;
         hasKey = true;
     }
+
+
 
     // FixedUpdate is called just before performing any physics calculations
     private void FixedUpdate()
@@ -88,7 +91,7 @@ public class ProtagonistController : MonoBehaviour
         {
             if (hasKey)
             {
-                key.KeyDropped(transform.position);
+                key.KeyDropped(key, transform.position);
                 hasKey = false;
             }
         }

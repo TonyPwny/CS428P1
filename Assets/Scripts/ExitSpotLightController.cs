@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class KeySpotLightController : MonoBehaviour
+public class ExitSpotLightController : MonoBehaviour
 {
     Light spotlight;
 
@@ -15,16 +15,13 @@ public class KeySpotLightController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        float time = Mathf.PingPong(Time.time, 1.0f) / 1.0f;
-        spotlight.color = Color.Lerp(Color.white, Color.yellow, time);
-
         if (ProtagonistController.hasKey)
         {
-            spotlight.gameObject.SetActive(false);
+            spotlight.color = Color.green;
         }
         else
         {
-            spotlight.gameObject.SetActive(true);
+            spotlight.color = Color.red;
         }
     }
 }

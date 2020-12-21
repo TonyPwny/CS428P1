@@ -9,54 +9,52 @@ using UnityEngine;
 
 public class KeyController : MonoBehaviour
 {
+    private Vector3 startingLocation;
+
     // Start is called before the first frame update
     void Start()
     {
-        
+        startingLocation = transform.position;
     }
 
     // Update is called once per frame
     void Update()
     {
         transform.Rotate(new Vector3(50, 30, 45) * Time.deltaTime);
-    }
 
-    public void KeyDropped(Vector3 position)
-    {
-        transform.GetComponent<BoxCollider>().isTrigger = false;
-        transform.parent.gameObject.transform.position = position;
-        transform.position += new Vector3(0f, 0.75f, 0f);
-        transform.GetComponent<Rigidbody>().isKinematic = false;
-        transform.parent.gameObject.SetActive(true);
-        transform.GetComponent<Rigidbody>().AddForce(new Vector3(0f, 10f, 0f));
-        if (transform.position.y <= 0.5)
+        if (!this.GetComponent<Rigidbody>().isKinematic && (transform.localPosition.y <= 0.6))
         {
-            transform.GetComponent<Rigidbody>().isKinematic = true;
-            transform.position = new Vector3(transform.position.x, 0.5f, transform.position.z);
+            this.GetComponent<Rigidbody>().isKinematic = true;
+            transform.localPosition = new Vector3(transform.localPosition.x, 0.5f, transform.localPosition.z);
         }
     }
 
-    private void KeyPickUp()
+    public void KeyDropped(KeyController key, Vector3 position)
     {
-        transform.parent.gameObject.SetActive(false);
+        key.transform.position = position + new Vector3(0f, 1f, 0f);
+        key.gameObject.SetActive(true);
+        key.GetComponent<Rigidbody>().isKinematic = false;
+        key.GetComponent<Rigidbody>().AddForce(new Vector3(0f, 400f, 0f));
     }
 
-    private void KeyRetrieval()
+    private void KeyPickedUp(KeyController key)
     {
-        transform.parent.gameObject.SetActive(false);
+        key.gameObject.SetActive(false);
     }
 
     private void OnTriggerEnter(Collider collision)
     {
-        if (GamePlusController.inPlay && collision.gameObject.CompareTag("Protagonist") && (Vector3.Distance(collision.transform.position, transform.position) < 5))
+        if (GamePlusController.inPlay && collision.gameObject.CompareTag("Protagonist") && (Vector3.Distance(collision.transform.position, transform.position) < 1))
         {
-            KeyPickUp();
+            KeyPickedUp(this);
             collision.GetComponent<ProtagonistController>().HasKey(this);
         }
 
-        if (GamePlusController.inPlay && collision.gameObject.CompareTag("Antagonist") && (Vector3.Distance(collision.transform.position, transform.position) < 5))
+        if (GamePlusController.inPlay && !(transform.position == startingLocation) && collision.gameObject.CompareTag("Antagonist") && (Vector3.Distance(collision.transform.position, transform.position) < 1))
         {
-            KeyRetrieval();
+            print("key position: " + transform.position);
+            print("key starting position: " + startingLocation);
+            KeyPickedUp(this);
         }
     }
 }

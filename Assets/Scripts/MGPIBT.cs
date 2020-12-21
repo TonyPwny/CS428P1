@@ -11,7 +11,7 @@ using TreeSharpPlus;
 public class MGPIBT : MonoBehaviour
 {
     public GameObject protagonist;
-    public Transform antagonists, exit, key, keyStartingLocation;
+    public Transform antagonists, exit, key;
 
     private BehaviorAgent behaviorAgent;
 
@@ -137,7 +137,7 @@ public class MGPIBT : MonoBehaviour
         return protagonistIBT;
     }
 
-    protected Node ST_AntagonistsRoot(Transform protagonist, Transform key, Transform key_starting_location)
+    protected Node ST_AntagonistsRoot(Transform protagonist, Transform key)
     {
         Transform target = null; // assign target to either protagnoist or key
         Node antagonistsIBT = new Sequence(
@@ -159,7 +159,7 @@ public class MGPIBT : MonoBehaviour
                             new DecoratorLoopSuccess(
                                 this.ST_ProtagonistRoot(key, exit, antagonists)),
                             new DecoratorLoopSuccess(
-                                this.ST_AntagonistsRoot(protagonist.transform, key, keyStartingLocation)
+                                this.ST_AntagonistsRoot(protagonist.transform, key)
                                 ));
         return gameIBT;
     }
