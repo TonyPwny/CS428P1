@@ -10,6 +10,7 @@ TagManager:
   - Agent
   - Protagonist
   - Antagonist
+  - Key
   layers:
   - Default
   - TransparentFX

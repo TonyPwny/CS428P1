@@ -1,9 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using TreeSharpPlus;
 
-public class BehaviorRB : MonoBehaviour
+public class KeySpotLightController : MonoBehaviour
 {
     // Start is called before the first frame update
     void Start()
@@ -14,6 +13,6 @@ public class BehaviorRB : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+
     }
 }

@@ -11,26 +11,28 @@ using TreeSharpPlus;
 public class MGPIBT : MonoBehaviour
 {
     public GameObject protagonist;
-    public Transform antagonists, exit, key, key_starting_location;
-    public static float DESIRED_SPEED;
-    public static float DESIRED_JUMP_POWER;
+    public Transform antagonists, exit, key, keyStartingLocation;
 
     private BehaviorAgent behaviorAgent;
 
     // Start is called before the first frame update
     void Start()
     {
-        DESIRED_SPEED = antagonists.GetComponent<AntagonistsController>().GetSpeed();
-        DESIRED_JUMP_POWER = antagonists.GetComponent<AntagonistsController>().GetJumpPower();
         behaviorAgent = new BehaviorAgent(this.BuildTreeRoot());
         BehaviorManager.Instance.Register(behaviorAgent);
-        behaviorAgent.StartBehavior();
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+        if (GamePlusController.inPlay)
+        {
+            behaviorAgent.StartBehavior();
+        }
+        else
+        {
+            behaviorAgent.StopBehavior();
+        }
     }
 
     protected Node Patrol()
@@ -71,7 +73,7 @@ public class MGPIBT : MonoBehaviour
             foreach (Transform antagonist in antagonists)
             {
                 desiredDirection = target.transform.position - antagonist.transform.position;
-                antagonist.GetComponent<Rigidbody>().AddForce(desiredDirection * DESIRED_SPEED);
+                antagonist.GetComponent<Rigidbody>().AddForce(desiredDirection);
             }
 
             if (detection)
@@ -157,7 +159,7 @@ public class MGPIBT : MonoBehaviour
                             new DecoratorLoopSuccess(
                                 this.ST_ProtagonistRoot(key, exit, antagonists)),
                             new DecoratorLoopSuccess(
-                                this.ST_AntagonistsRoot(protagonist.transform, key, key_starting_location)
+                                this.ST_AntagonistsRoot(protagonist.transform, key, keyStartingLocation)
                                 ));
         return gameIBT;
     }

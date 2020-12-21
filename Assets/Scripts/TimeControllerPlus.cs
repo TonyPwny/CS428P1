@@ -17,10 +17,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class TimeController : MonoBehaviour
+public class TimeControllerPlus : MonoBehaviour
 {
-
-    public static TimeController instance;
+    public static TimeControllerPlus instance;
     public Text gameTimerText;
 
     private TimeSpan gameTimer;
@@ -42,7 +41,7 @@ public class TimeController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (!GameController.inPlay)
+        if (!GamePlusController.inPlay)
         {
             timerOn = false;
         }
@@ -68,7 +67,7 @@ public class TimeController : MonoBehaviour
 
     public int ElapsedSeconds()
     {
-        return (int) elapsedTime;
+        return (int)elapsedTime;
     }
 
     private IEnumerator UpdateTimer()

@@ -15,7 +15,9 @@ public class ProtagonistController : MonoBehaviour
 
     private NavMeshAgent nma;
     private Rigidbody rb;
+    private KeyController key;
     private bool isGrounded = true;
+    private bool hasKey = false;
 
     // Start is called before the first frame update
     void Start()
@@ -26,24 +28,45 @@ public class ProtagonistController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (hasKey)
+        {
+            print("hasKey");
+        }
+        else
+        {
+            key = null;
+        }
 
+        if (transform.position.y < -10)
+        {
+            GamePlusController.instance.ProtagonistFell();
+        }
+    }
+
+    public void HasKey(KeyController key)
+    {
+        this.key = key;
+        hasKey = true;
     }
 
     // FixedUpdate is called just before performing any physics calculations
     private void FixedUpdate()
     {
-        float moveHorizontal = Input.GetAxis("1_Horizontal");
-        float moveVertical = Input.GetAxis("1_Vertical");
-
-
-        Vector3 movement = new Vector3(moveHorizontal, 0.0f, moveVertical);
-
-        if (Input.GetButton("1_Jump") && isGrounded)
+        if (GamePlusController.inPlay)
         {
-            movement.Set(moveHorizontal, jumpPower, moveVertical);
-        }
+            float moveHorizontal = Input.GetAxis("1_Horizontal");
+            float moveVertical = Input.GetAxis("1_Vertical");
 
-        rb.AddForce(movement * speed);
+
+            Vector3 movement = new Vector3(moveHorizontal, 0.0f, moveVertical);
+
+            if (Input.GetButton("1_Jump") && isGrounded)
+            {
+                movement.Set(moveHorizontal, jumpPower, moveVertical);
+            }
+
+            rb.AddForce(movement * speed);
+        }
     }
 
     void OnCollisionExit(Collision collision)
@@ -59,6 +82,15 @@ public class ProtagonistController : MonoBehaviour
         if (collision.gameObject.CompareTag("Floor"))
         {
             isGrounded = true;
+        }
+
+        if (collision.gameObject.CompareTag("Antagonist"))
+        {
+            if (hasKey)
+            {
+                key.KeyDropped(transform.position);
+                hasKey = false;
+            }
         }
     }
 }

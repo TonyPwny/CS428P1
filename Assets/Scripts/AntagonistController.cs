@@ -17,6 +17,7 @@ public class AntagonistController : MonoBehaviour
     private NavMeshAgent nma;
     private Rigidbody rb;
     private bool isGrounded = true;
+    private bool targetAcquired = false;
 
     // Start is called before the first frame update
     void Start()
@@ -35,6 +36,12 @@ public class AntagonistController : MonoBehaviour
 
     public void Patrol()
     {
+        var force = CalculatePatrolForce() + CalculateAntagonistForce() + CalculateWallForce();
+        rb.AddForce(Vector3.ClampMagnitude(force, 10f));
+    }
+
+    private Vector3 CalculatePatrolForce()
+    {
         print("Patrol");
         Vector3 desiredDirection, desiredDirectionSide;
         float moveHorizontal, moveVertical;
@@ -51,48 +58,53 @@ public class AntagonistController : MonoBehaviour
             moveHorizontal = GetVelocityX();
             moveVertical = GetVelocityZ();
             desiredDirection = new Vector3(moveHorizontal, 0.0f, moveVertical);
-            force = desiredDirection;
+            force += desiredDirection * speed;
         }
 
-        force += desiredDirection * speed;
         Ray wallRay = new Ray(transform.position, desiredDirection);
 
         if (Physics.Raycast(wallRay, out RaycastHit hit))
         {
-            if (hit.distance <= 5 && !hit.transform.CompareTag("Protagonist"))
+            if (hit.distance <= 5 && !(hit.transform.CompareTag("Protagonist") || hit.transform.CompareTag("Key")))
             {
-                force -= desiredDirection * speed;
+                force -= (desiredDirection * speed);
                 Ray wallRayLeft = new Ray(transform.position, Vector3.Cross(desiredDirection, Vector3.up));
                 Ray wallRayRight = new Ray(transform.position, Vector3.Cross(desiredDirection, Vector3.down));
+                Physics.Raycast(wallRayLeft, out RaycastHit hitLeft);
+                Physics.Raycast(wallRayRight, out RaycastHit hitRight);
 
-                if (Physics.Raycast(wallRayLeft, out RaycastHit hitLeft) && hitLeft.distance <= 5)
-                {
-                    desiredDirectionSide = Vector3.Cross(desiredDirection, Vector3.up);
-                    force -= new Vector3(desiredDirectionSide.x, 0.0f, desiredDirectionSide.z) * speed;
-                }
-                else if (Physics.Raycast(wallRayRight, out RaycastHit hitRight) && hitRight.distance <= 5)
+                if (hitLeft.distance <= hitRight.distance)
                 {
                     desiredDirectionSide = Vector3.Cross(desiredDirection, Vector3.down);
-                    force -= new Vector3(desiredDirectionSide.x, 0.0f, desiredDirectionSide.z) * speed;
                 }
                 else
                 {
-                    int rand = Random.Range(0, 2);
-                    if (rand == 0)
-                    {
-                        desiredDirectionSide = Vector3.Cross(desiredDirection, Vector3.up);
-                        force -= new Vector3(desiredDirectionSide.x, 0.0f, desiredDirectionSide.z) * speed;
-                    }
-                    else
-                    {
-                        desiredDirectionSide = Vector3.Cross(desiredDirection, Vector3.down);
-                        force -= new Vector3(desiredDirectionSide.x, 0.0f, desiredDirectionSide.z) * speed;
-                    }
+                    desiredDirectionSide = Vector3.Cross(desiredDirection, Vector3.up);
                 }
+
+                force += new Vector3(desiredDirectionSide.x, 0.0f, desiredDirectionSide.z) * speed;
+            }
+            else
+            {
+                force += desiredDirection * speed;
             }
         }
 
-        rb.AddForce(Vector3.ClampMagnitude(force, 10f));
+        return force;
+    }
+
+    private Vector3 CalculateAntagonistForce()
+    {
+        var force = Vector3.zero;
+
+        return force;
+    }
+
+    private Vector3 CalculateWallForce()
+    {
+        var force = Vector3.zero;
+
+        return force;
     }
 
     private Vector3 GetVelocity()
@@ -112,7 +124,15 @@ public class AntagonistController : MonoBehaviour
 
     private void SetSpeed()
     {
-        speed = GetComponentInParent<AntagonistsController>().GetSpeed();
+        if (GetComponentInParent<AntagonistController>())
+        {
+            speed = GetComponentInParent<AntagonistsController>().GetSpeed();
+        }
+        else
+        {
+            print("No parent");
+            speed = 100f;
+        }
     }
 
     private void SetJumpPower()
