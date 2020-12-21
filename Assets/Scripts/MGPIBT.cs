@@ -33,7 +33,8 @@ public class MGPIBT : MonoBehaviour
 
     protected Node Patrol()
     {
-        Vector3 movement;
+        Vector3 desiredDirection;
+        float moveHorizontal, moveVertical;
 
         return new LeafInvoke(() =>
         {
@@ -42,18 +43,46 @@ public class MGPIBT : MonoBehaviour
             bool detection = false; // true if protagonist is "in view" or key is "in view" and not at key_starting_location
 
             foreach (Transform antagonist in antagonists) {
+                var force = Vector3.zero;
+
                 if (antagonist.GetComponent<Rigidbody>().velocity == Vector3.zero)
                 {
-                    int moveHorizontal = Random.Range(-1, 2);
-                    int moveVertical = Random.Range(-1, 2);
-                    movement = new Vector3(moveHorizontal, 0.0f, moveVertical) * DESIRED_SPEED;
-                    antagonist.GetComponent<Rigidbody>().AddForce(movement);
+                    moveHorizontal = Random.Range(-1, 2);
+                    moveVertical = Random.Range(-1, 2);
+                    desiredDirection = new Vector3(moveHorizontal, 0.0f, moveVertical);
                 }
                 else
                 {
-                    movement = antagonist.GetComponent<Rigidbody>().velocity * DESIRED_SPEED;
-                    antagonist.GetComponent<Rigidbody>().AddForce(Vector3.ClampMagnitude(movement, 10f));
+                    moveHorizontal = antagonist.GetComponent<Rigidbody>().velocity.x;
+                    moveVertical = antagonist.GetComponent<Rigidbody>().velocity.z;
+                    desiredDirection = new Vector3(moveHorizontal, 0.0f, moveVertical);
                 }
+
+                force += desiredDirection * DESIRED_SPEED;
+
+                Ray wallRay = new Ray(antagonist.transform.position, desiredDirection);
+                if (Physics.Raycast(wallRay, out RaycastHit hit))
+                {
+                    if (hit.distance <= 5)
+                    {
+                        Ray wallRaySide = new Ray(antagonist.transform.position, Vector3.Cross(Vector3.up, desiredDirection));
+                        if (Physics.Raycast(wallRaySide, out RaycastHit hitSide))
+                        {
+                            _ = new Vector3();
+                            Vector3 desiredDirectionSide = Vector3.Cross(Vector3.up, desiredDirection);
+                            desiredDirectionSide.Normalize();
+                            if (hitSide.distance <= 5)
+                            {
+                                force += -desiredDirectionSide * DESIRED_SPEED;
+                            }
+                            else
+                            {
+                                force += desiredDirectionSide * DESIRED_SPEED;
+                            }
+                        }
+                    }
+                }
+                antagonist.GetComponent<Rigidbody>().AddForce(Vector3.ClampMagnitude(force, 10f));
             }
 
             if (!detection) // fail (loop again) if protagonist is not "in view" or key is not "in view" and not at key_starting_location, otherwise succeed (break)
