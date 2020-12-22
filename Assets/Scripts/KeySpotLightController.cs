@@ -15,16 +15,10 @@ public class KeySpotLightController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        float time = Mathf.PingPong(Time.time, 1.0f) / 1.0f;
-        spotlight.color = Color.Lerp(Color.white, Color.yellow, time);
-
-        if (ProtagonistController.hasKey)
+        if (spotlight.isActiveAndEnabled)
         {
-            spotlight.gameObject.SetActive(false);
-        }
-        else
-        {
-            spotlight.gameObject.SetActive(true);
+            float time = Mathf.PingPong(Time.time, 1.0f) / 1.0f;
+            spotlight.color = Color.Lerp(Color.white, Color.yellow, time);
         }
     }
 }

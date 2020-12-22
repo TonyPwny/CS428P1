@@ -90,6 +90,7 @@ public class ProtagonistController : MonoBehaviour
         if (collision.gameObject.CompareTag("Antagonist"))
         {
             if (hasKey)
+            //if (hasKey && (transform.position.y < (collision.transform.position.y - 0.01f)))
             {
                 key.KeyDropped(key, transform.position);
                 hasKey = false;
