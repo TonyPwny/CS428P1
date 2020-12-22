@@ -79,14 +79,6 @@ public class MGPIBT : MonoBehaviour
         });
     }
 
-    protected Node Defend()
-    {
-        return new LeafInvoke(() =>
-        {
-            print("Defend");
-        });
-    }
-
     protected Node AntagonistAttack()
     {
         return new LeafInvoke(() =>
@@ -99,13 +91,9 @@ public class MGPIBT : MonoBehaviour
                 {
                     target = antagonist.GetComponent<AntagonistController>().Target();
 
-                    if (target.CompareTag("Protagonist") && (Vector3.Distance(antagonist.position, target.position) <= 3) && ProtagonistController.hasKey)
+                    if (target.CompareTag("Protagonist") && (Vector3.Distance(antagonist.position, target.position) <= 4) && ProtagonistController.hasKey && antagonist.GetComponent<AntagonistController>().isGrounded)
                     {
-                        antagonist.GetComponent<AntagonistController>().attacking = true;
-                    }
-                    else
-                    {
-                        antagonist.GetComponent<AntagonistController>().attacking = false;
+                        antagonist.GetComponent<Rigidbody>().AddForce(new Vector3(0f, 100f, 0f));
                     }
                 }
             }
@@ -119,9 +107,6 @@ public class MGPIBT : MonoBehaviour
                 this.Pursue()
                 ),
             new DecoratorLoop(
-                this.Defend()
-                ),
-            new DecoratorLoop(
                 this.AntagonistAttack()
                 ));
 
@@ -131,7 +116,7 @@ public class MGPIBT : MonoBehaviour
     {
         return new LeafInvoke(() =>
         {
-            print("Get Key");
+
         });
     }
 
@@ -139,22 +124,14 @@ public class MGPIBT : MonoBehaviour
     {
         return new LeafInvoke(() =>
         {
-            print("Go To Exit");
+
         });
     }
     protected Node Evade()
     {
         return new LeafInvoke(() =>
         {
-            print("Evade");
-        });
-    }
 
-    protected Node Attack()
-    {
-        return new LeafInvoke(() =>
-        {
-            print("Attack");
         });
     }
 
@@ -171,19 +148,6 @@ public class MGPIBT : MonoBehaviour
         return objective;
     }
 
-    protected Node SelP_Evaluate()
-    {
-        Node evaluate = new SelectorParallel(
-            new DecoratorLoop(
-                this.Evade()
-                ),
-            new DecoratorLoop(
-                this.Attack()
-                ));
-
-        return evaluate;
-    }
-
     protected Node SeqP_ProtagonistRoot()
     {
         Node protagonistIBT = new SequenceParallel(
@@ -191,7 +155,7 @@ public class MGPIBT : MonoBehaviour
                 this.SeqT_Objective()
                 ),
             new DecoratorLoop(
-                this.SelP_Evaluate()
+                this.Evade()
                 ));
 
         return protagonistIBT;

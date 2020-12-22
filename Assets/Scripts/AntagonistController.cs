@@ -14,12 +14,11 @@ public class AntagonistController : MonoBehaviour
     public float speed;
     private float jumpPower;
     public bool targetAcquired = false;
-    public bool attacking = false;
+    public bool isGrounded = true;
 
     private NavMeshAgent nma;
     private Rigidbody rb;
     private Transform target;
-    private bool isGrounded = true;
     private HashSet<GameObject> perceivedNeighbors = new HashSet<GameObject>();
     private HashSet<GameObject> adjacentWalls = new HashSet<GameObject>();
 
@@ -36,7 +35,14 @@ public class AntagonistController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        if (target != null)
+        {
+            if (target.CompareTag("Key") && (ProtagonistController.hasKey || !KeyController.keyDropped))
+            {
+                targetAcquired = false;
+                target = null;
+            }
+        }
     }
 
     public Transform Target()
@@ -55,15 +61,8 @@ public class AntagonistController : MonoBehaviour
     public void ComputeForce(Transform target = null)
     {
         var force = CalculateGoalForce(target) + CalculateNeighborForce() + CalculateWallForce();
+        rb.AddForce(new Vector3(Mathf.Clamp(force.x, -1, 1), 0.0f, Mathf.Clamp(force.z, -1, 1)) * speed);
 
-        if (attacking && isGrounded)
-        {
-            rb.AddForce(new Vector3(Mathf.Clamp(force.x, -1, 1), jumpPower, Mathf.Clamp(force.z, -1, 1)) * speed);
-        }
-        else
-        {
-            rb.AddForce(new Vector3(Mathf.Clamp(force.x, -1, 1), 0.0f, Mathf.Clamp(force.z, -1, 1)) * speed);
-        }
     }
 
     private Vector3 CalculateGoalForce(Transform target)
@@ -122,7 +121,7 @@ public class AntagonistController : MonoBehaviour
         }
         else // Pursue or retrieve target.
         {
-            desiredDirection = target.TransformPoint(Vector3.zero) - transform.TransformPoint(Vector3.zero);
+            desiredDirection = target.position - transform.position;
 
             if (Vector3.Distance(target.position, transform.position) >= 2f) {
                 force += desiredDirection * (10f / Vector3.Distance(target.position, transform.position));
@@ -261,13 +260,6 @@ public class AntagonistController : MonoBehaviour
         if (adjacentWalls.Contains(other.gameObject))
         {
             adjacentWalls.Remove(other.gameObject);
-        }
-
-        if (other.CompareTag("Key") || other.CompareTag("Protagonist"))
-        {
-            this.ComputeForce(other.transform);
-            target = null;
-            targetAcquired = false;
         }
     }
 
