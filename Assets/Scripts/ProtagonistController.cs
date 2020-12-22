@@ -28,13 +28,8 @@ public class ProtagonistController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (hasKey)
+        if (!hasKey && (key != null))
         {
-            print("Has key");
-        }
-        else
-        {
-            print("Does not have key.");
             key = null;
         }
 
@@ -49,8 +44,6 @@ public class ProtagonistController : MonoBehaviour
         this.key = key;
         hasKey = true;
     }
-
-
 
     // FixedUpdate is called just before performing any physics calculations
     private void FixedUpdate()
@@ -89,8 +82,7 @@ public class ProtagonistController : MonoBehaviour
 
         if (collision.gameObject.CompareTag("Antagonist"))
         {
-            if (hasKey)
-            //if (hasKey && (transform.position.y < (collision.transform.position.y - 0.01f)))
+            if (hasKey && (transform.position.y < (collision.transform.position.y - 0.01f)))
             {
                 key.KeyDropped(key, transform.position);
                 hasKey = false;

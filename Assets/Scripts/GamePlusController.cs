@@ -20,11 +20,13 @@ public class GamePlusController : MonoBehaviour
     public Text gameOverText;
     public int timeLimitInMinutes = 2;
     public static bool inPlay = false;
+    public static bool timeLimitReached = false;
 
     private int timeLimitSeconds;
     private static bool announcementActive = false;
     private bool gameOver = true;
     private bool protagonistFell = false;
+    private bool protagonistWins = false;
 
     private void Awake()
     {
@@ -77,6 +79,7 @@ public class GamePlusController : MonoBehaviour
         {
             inPlay = false;
             gameOver = true;
+            timeLimitReached = false;
             SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         }
 
@@ -104,10 +107,12 @@ public class GamePlusController : MonoBehaviour
         {
             inPlay = false;
             gameOver = true;
-            gameOverText.text = "Time's up!\n" +
+            timeLimitReached = true;
+            gameOverText.text = "Time is up!\n" +
+                "GAME OVER\n" +
                 "Retry?\n" +
                 "(Press ESC)";
-            MakeAnnouncement("How exciting!! Or boring??", 0);
+            MakeAnnouncement("You have been defated.", 0);
         }
 
         if (protagonistFell)
@@ -115,9 +120,21 @@ public class GamePlusController : MonoBehaviour
             inPlay = false;
             gameOver = true;
             gameOverText.text = "You fell!\n" +
+                "GAME OVER\n" +
                 "Retry?\n" +
                 "(Press ESC)";
             MakeAnnouncement("Be careful next time...", 0);
+        }
+
+        if (protagonistWins)
+        {
+            inPlay = false;
+            gameOver = true;
+            gameOverText.text = "You are a true\n" +
+                "WINNER\n" +
+                "Roll again?\n" +
+                "(Press ESC)";
+            MakeAnnouncement("Victory is yours!", 0);
         }
     }
 
@@ -146,6 +163,11 @@ public class GamePlusController : MonoBehaviour
     public void ProtagonistFell()
     {
         protagonistFell = true;
+    }
+
+    public void ProtagonistWins()
+    {
+        protagonistWins = true;
     }
 
     private void KillAnnouncementNow(string announcement, int killTime)

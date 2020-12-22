@@ -130,6 +130,7 @@ GameObject:
   m_Component:
   - component: {fileID: 95400426}
   - component: {fileID: 95400427}
+  - component: {fileID: 95400428}
   m_Layer: 0
   m_Name: Exit
   m_TagString: Untagged
@@ -165,6 +166,18 @@ CapsuleCollider:
   m_Height: 1
   m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &95400428
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 95400425}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bcbf451040ab7ad4f80ceb9402d9b7db, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &178387940
 GameObject:
   m_ObjectHideFlags: 0
@@ -1421,10 +1434,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 15e410933b0b28e4c86cce4feade2fa8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  protagonist: {fileID: 603332533}
   antagonists: {fileID: 200564095}
-  exit: {fileID: 95400426}
   key: {fileID: 724008654}
+  exit: {fileID: 95400426}
 --- !u!114 &1486108918
 MonoBehaviour:
   m_ObjectHideFlags: 0

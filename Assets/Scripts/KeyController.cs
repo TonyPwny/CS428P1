@@ -36,6 +36,11 @@ public class KeyController : MonoBehaviour
         }
     }
 
+    public Vector3 StartingLocation()
+    {
+        return startingLocation;
+    }
+
     public void KeyDropped(KeyController key, Vector3 position)
     {
         key.GetComponentInParent<Transform>().position = position;

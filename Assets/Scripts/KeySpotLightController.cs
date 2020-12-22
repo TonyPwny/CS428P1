@@ -18,7 +18,7 @@ public class KeySpotLightController : MonoBehaviour
         if (spotlight.isActiveAndEnabled)
         {
             float time = Mathf.PingPong(Time.time, 1.0f) / 1.0f;
-            spotlight.color = Color.Lerp(Color.white, Color.yellow, time);
+            spotlight.color = Color.Lerp(Color.yellow, Color.white, time);
         }
     }
 }

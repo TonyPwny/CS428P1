@@ -10,8 +10,7 @@ using TreeSharpPlus;
 
 public class MGPIBT : MonoBehaviour
 {
-    public GameObject protagonist;
-    public Transform antagonists, exit, key;
+    public Transform antagonists, key, exit;
 
     private BehaviorAgent behaviorAgent;
 
@@ -35,119 +34,158 @@ public class MGPIBT : MonoBehaviour
         }
     }
 
-    protected Node Patrol()
-    {   /*
-        Vector3 desiredDirection;
-        float moveHorizontal, moveVertical;
-        */
+    protected Node Patrol() // Antagonists' Patrol routine.
+    {
         return new LeafInvoke(() =>
         {
-            bool detection = false; // true if protagonist is "in view" or key is "in view" and not at key_starting_location
+            bool timeLimitReached = GamePlusController.timeLimitReached; // true if the time limit is reached.
 
             foreach (Transform antagonist in antagonists)
             {
-                antagonist.GetComponent<AntagonistController>().Patrol();
+                antagonist.GetComponent<AntagonistController>().ComputeForce();
             }
             
-            if (!detection) // fail (loop again) if protagonist is not "in view" or key is not "in view" and not at key_starting_location, otherwise succeed (break)
+            if (!timeLimitReached) // Fail (loop again) if time limit has not been reached.
             {
                 return RunStatus.Failure;
             }
-            else // successfully patrolled (break)
+            else // Successfully patrolled until the end of the game; antagonists win.
             {
                 return RunStatus.Success;
             }
         });
     }
 
-    protected Node Pursue(Transform target)
+    protected Node Retrieve()
     {
-        Vector3 desiredDirection;
-
-        bool detection = true; // true if protagonist or key is "in view"
-
         return new LeafInvoke(() =>
         {
-            print("Pursue");
-
-            foreach (Transform antagonist in antagonists)
-            {
-                desiredDirection = target.transform.position - antagonist.transform.position;
-                antagonist.GetComponent<Rigidbody>().AddForce(desiredDirection);
-            }
-
-            if (detection)
-            {
-                if (false)
-                {
-                    return RunStatus.Success;
-                }
-                else
-                {
-                    return RunStatus.Failure;
-                }
-            }
-            else
-            {
-                return RunStatus.Failure;
-            }
+            print("Retrieve");
         });
     }
 
-    protected Node Evade(Transform target)
+    protected Node Defend()
     {
-        Vector3 desiredDirection;
+        return new LeafInvoke(() =>
+        {
+            print("Defend");
+        });
+    }
 
+    protected Node AntagonistAttack()
+    {
+        return new LeafInvoke(() =>
+        {
+            print("Antagonist Attack");
+        });
+    }
+
+    protected Node Pursue()
+    {
+        return new LeafInvoke(() =>
+        {
+            print("Pursue");
+        });
+    }
+
+    protected Node SelP_AntagonistEvaluate() // Evaluate antagonists' current situation.
+    {
+        Node antagonistEvaluate = new SelectorParallel(
+            new DecoratorLoop(
+                this.Retrieve()
+                ),
+            new DecoratorLoop(
+                this.Defend()
+                ),
+            new DecoratorLoop(
+                this.Attack()
+                ),
+            new DecoratorLoop(
+                this.Pursue()
+                ));
+
+        return antagonistEvaluate;
+    }
+    protected Node GetKey()
+    {
+        return new LeafInvoke(() =>
+        {
+            print("Get Key");
+        });
+    }
+
+    protected Node GoToExit()
+    {
+        return new LeafInvoke(() =>
+        {
+            print("Go To Exit");
+        });
+    }
+    protected Node Evade()
+    {
         return new LeafInvoke(() =>
         {
             print("Evade");
         });
     }
-    protected Node GetKey(Transform key)
-    {
-        Vector3 desiredDirection;
 
+    protected Node Attack()
+    {
         return new LeafInvoke(() =>
         {
-            print("GetKey");
+            print("Attack");
         });
     }
 
-    protected Node GoToExit(Transform exit)
+    protected Node SeqT_Objective()
     {
-        Vector3 desiredDirection;
+        Node objective = new Sequence(
+            new DecoratorLoopSuccess(
+                this.GetKey()
+                ),
+            new DecoratorLoopSuccess(
+                this.GoToExit()
+            ));
 
-        return new LeafInvoke(() =>
-        {
-            print("GoToExit");
-        });
+        return objective;
     }
 
-    protected Node ST_ProtagonistRoot(Transform key, Transform exit, Transform antagonists)
+    protected Node SelP_Evaluate()
     {
-        Node protagonistIBT = new Sequence(
-            // should be LoopSuccess, using Loop for debugging
+        Node evaluate = new SelectorParallel(
             new DecoratorLoop(
-                this.GetKey(key)
+                this.Evade()
                 ),
             new DecoratorLoop(
-                this.GoToExit(exit)
+                this.Attack()
+                ));
+
+        return evaluate;
+    }
+
+    protected Node SeqP_ProtagonistRoot()
+    {
+        Node protagonistIBT = new SequenceParallel(
+            new DecoratorLoopSuccess(
+                this.SeqT_Objective()
+                ),
+            new DecoratorLoop(
+                this.SelP_Evaluate()
                 ));
 
         return protagonistIBT;
     }
 
-    protected Node ST_AntagonistsRoot(Transform protagonist, Transform key)
+    protected Node SeqP_AntagonistsRoot()
     {
-        Transform target = null; // assign target to either protagnoist or key
-        Node antagonistsIBT = new Sequence(
-            // loop until protagonist is "in view" or key is "in view" and not at key_starting_location
+        Node antagonistsIBT = new SequenceParallel(
+            // Patrol until the time limit is reached to succeed.
             new DecoratorLoopSuccess(
                 this.Patrol()
                 ),
-            // if protagonist is "in view" and key is either at key_starting_location or not "in view", otherwise fail/break
-            new DecoratorLoopSuccess(
-                this.Pursue(target)
+            // Continually evaluate your surroundings, returning success.
+            new DecoratorLoop(
+                this.SelP_AntagonistEvaluate()
                 ));
 
         return antagonistsIBT;
@@ -156,11 +194,12 @@ public class MGPIBT : MonoBehaviour
     protected Node BuildTreeRoot()
     {
         Node gameIBT = new SelectorParallel(
-                            new DecoratorLoopSuccess(
-                                this.ST_ProtagonistRoot(key, exit, antagonists)),
-                            new DecoratorLoopSuccess(
-                                this.ST_AntagonistsRoot(protagonist.transform, key)
-                                ));
+            new DecoratorLoopSuccess(
+                this.SeqP_ProtagonistRoot()),
+            new DecoratorLoopSuccess(
+                this.SeqP_AntagonistsRoot()
+                ));
+
         return gameIBT;
     }
 }
