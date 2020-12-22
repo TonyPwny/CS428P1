@@ -45,8 +45,8 @@ public class KeyController : MonoBehaviour
     public void KeyDropped(KeyController key, Vector3 position)
     {
         keyDropped = true;
-        key.GetComponentInParent<Transform>().localPosition = position;
-        key.transform.position += new Vector3(0f, 1.5f, 0f);
+        key.GetComponentInParent<Transform>().position = position;
+        key.transform.localPosition += new Vector3(0f, 1.5f, 0f);
         key.gameObject.SetActive(true);
         key.GetComponent<Rigidbody>().isKinematic = false;
         key.GetComponent<Rigidbody>().AddForce(new Vector3(0f, 400f, 0f));

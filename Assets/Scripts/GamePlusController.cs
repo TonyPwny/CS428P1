@@ -25,6 +25,7 @@ public class GamePlusController : MonoBehaviour
 
     private int timeLimitSeconds;
     private static bool announcementActive = false;
+    private static bool demo = false;
     private bool gameOver = true;
     private bool protagonistFell = false;
     private bool protagonistWins = false;
@@ -57,7 +58,9 @@ public class GamePlusController : MonoBehaviour
             "but only if you are HIGHER THAN THEM at the point of impact.";
         promptText.text = "Press Enter/Return to Begin";
         controlsText.text = "Use W, S, A, D to Move\n" +
-            "Spacebar to Jump";
+            "Spacebar to Jump\n\n" +
+            "PRESS RIGHT SHIFT\n" +
+            "FOR DEMO MODE";
         announcementsText.text = "Super Roll a Ball Deluxe";
         gameOverText.text = "";
     }
@@ -67,8 +70,10 @@ public class GamePlusController : MonoBehaviour
     {
         if (Input.GetButton("Submit") && !inPlay && !userControlled && gameOver)
         {
+            demo = false;
             userControlled = true;
             inPlay = true;
+            gameOver = false;
             GetComponent<MGPIBT>().StartBehavior();
             authorshipText.text = "";
             promptText.text = "Press Esc to Start Over";
@@ -78,8 +83,26 @@ public class GamePlusController : MonoBehaviour
             MakeAnnouncement("Begin!", 5);
         }
 
+        if (Input.GetButton("Demo") && !inPlay && !userControlled && gameOver)
+        {
+            demo = true;
+            userControlled = false;
+            inPlay = true;
+            gameOver = false;
+            GetComponent<MGPIBT>().StartBehavior();
+            authorshipText.text = "DEMO MODE\n" +
+                "PRESS LEFT SHIFT TO TOGGLE USER CONTROL";
+            promptText.text = "Press Esc to Start Over";
+            gameRulesText.text = "";
+            controlsText.text = "DEMO MODE\n" +
+                "PRESS LEFT SHIFT TO TOGGLE USER CONTROL";
+            TimeControllerPlus.instance.BeginTimer();
+            MakeAnnouncement("Begin!", 5);
+        }
+
         if (Input.GetButton("Cancel"))
         {
+            demo = false;
             inPlay = false;
             userControlled = false;
             gameOver = true;
@@ -87,6 +110,23 @@ public class GamePlusController : MonoBehaviour
             ProtagonistController.hasKey = false;
             GetComponent<MGPIBT>().StopBehavior();
             SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        }
+
+        if (Input.GetButtonDown("UserInput") && inPlay && !gameOver)
+        {
+            if (demo)
+            {
+                userControlled = !userControlled;
+
+                if (userControlled)
+                {
+                    MakeAnnouncement("User input enabled.", 3);
+                }
+                else
+                {
+                    MakeAnnouncement("User input disabled.", 3);
+                }
+            }
         }
 
         if (((float)(TimeControllerPlus.instance.ElapsedSeconds()) / (float)timeLimitSeconds) == 0.5)

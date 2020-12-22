@@ -91,7 +91,24 @@ public class MGPIBT : MonoBehaviour
     {
         return new LeafInvoke(() =>
         {
-            print("Antagonist Attack");
+            Transform target;
+
+            foreach (Transform antagonist in antagonists)
+            {
+                if (antagonist.GetComponent<AntagonistController>().targetAcquired)
+                {
+                    target = antagonist.GetComponent<AntagonistController>().Target();
+
+                    if (target.CompareTag("Protagonist") && (Vector3.Distance(antagonist.position, target.position) <= 3) && ProtagonistController.hasKey)
+                    {
+                        antagonist.GetComponent<AntagonistController>().attacking = true;
+                    }
+                    else
+                    {
+                        antagonist.GetComponent<AntagonistController>().attacking = false;
+                    }
+                }
+            }
         });
     }
 
@@ -105,7 +122,7 @@ public class MGPIBT : MonoBehaviour
                 this.Defend()
                 ),
             new DecoratorLoop(
-                this.Attack()
+                this.AntagonistAttack()
                 ));
 
         return antagonistEvaluate;
