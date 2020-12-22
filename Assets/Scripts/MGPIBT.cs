@@ -24,14 +24,17 @@ public class MGPIBT : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (GamePlusController.inPlay)
-        {
-            behaviorAgent.StartBehavior();
-        }
-        else
-        {
-            behaviorAgent.StopBehavior();
-        }
+
+    }
+
+    public void StartBehavior()
+    {
+        behaviorAgent.StartBehavior();
+    }
+
+    public void StopBehavior()
+    {
+        behaviorAgent.StopBehavior();
     }
 
     protected Node Patrol() // Antagonists' Patrol routine.
@@ -42,7 +45,10 @@ public class MGPIBT : MonoBehaviour
 
             foreach (Transform antagonist in antagonists)
             {
-                antagonist.GetComponent<AntagonistController>().ComputeForce();
+                if (!antagonist.GetComponent<AntagonistController>().targetAcquired)
+                {
+                    antagonist.GetComponent<AntagonistController>().ComputeForce();
+                }
             }
             
             if (!timeLimitReached) // Fail (loop again) if time limit has not been reached.
@@ -56,11 +62,20 @@ public class MGPIBT : MonoBehaviour
         });
     }
 
-    protected Node Retrieve()
+    protected Node Pursue()
     {
         return new LeafInvoke(() =>
         {
-            print("Retrieve");
+            Transform target;
+
+            foreach (Transform antagonist in antagonists)
+            {
+                if (antagonist.GetComponent<AntagonistController>().targetAcquired)
+                {
+                    target = antagonist.GetComponent<AntagonistController>().Target();
+                    antagonist.GetComponent<AntagonistController>().ComputeForce(target);
+                }
+            }
         });
     }
 
@@ -80,28 +95,17 @@ public class MGPIBT : MonoBehaviour
         });
     }
 
-    protected Node Pursue()
-    {
-        return new LeafInvoke(() =>
-        {
-            print("Pursue");
-        });
-    }
-
     protected Node SelP_AntagonistEvaluate() // Evaluate antagonists' current situation.
     {
         Node antagonistEvaluate = new SelectorParallel(
             new DecoratorLoop(
-                this.Retrieve()
+                this.Pursue()
                 ),
             new DecoratorLoop(
                 this.Defend()
                 ),
             new DecoratorLoop(
                 this.Attack()
-                ),
-            new DecoratorLoop(
-                this.Pursue()
                 ));
 
         return antagonistEvaluate;

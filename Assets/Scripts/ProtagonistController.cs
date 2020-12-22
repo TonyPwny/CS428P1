@@ -39,16 +39,10 @@ public class ProtagonistController : MonoBehaviour
         }
     }
 
-    public void HasKey(KeyController key)
-    {
-        this.key = key;
-        hasKey = true;
-    }
-
     // FixedUpdate is called just before performing any physics calculations
     private void FixedUpdate()
     {
-        if (GamePlusController.inPlay)
+        if (GamePlusController.inPlay && GamePlusController.userControlled)
         {
             float moveHorizontal = Input.GetAxis("1_Horizontal");
             float moveVertical = Input.GetAxis("1_Vertical");
@@ -63,6 +57,12 @@ public class ProtagonistController : MonoBehaviour
 
             rb.AddForce(movement * speed);
         }
+    }
+
+    public void HasKey(KeyController key)
+    {
+        this.key = key;
+        hasKey = true;
     }
 
     void OnCollisionExit(Collision collision)
@@ -84,7 +84,7 @@ public class ProtagonistController : MonoBehaviour
         {
             if (hasKey && (transform.position.y < (collision.transform.position.y - 0.01f)))
             {
-                key.KeyDropped(key, transform.position);
+                key.KeyDropped(key, transform.TransformPoint(Vector3.zero));
                 hasKey = false;
             }
         }

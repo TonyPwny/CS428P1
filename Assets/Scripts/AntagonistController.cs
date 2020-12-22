@@ -13,15 +13,14 @@ public class AntagonistController : MonoBehaviour
 {
     public float speed;
     public float jumpPower;
+    public bool targetAcquired = false;
 
     private NavMeshAgent nma;
     private Rigidbody rb;
     private Transform target;
     private bool isGrounded = true;
-    private static bool targetAcquired = false;
-    private static readonly HashSet<GameObject> hashSets = new HashSet<GameObject>();
-    private HashSet<GameObject> perceivedNeighbors = hashSets;
-    private HashSet<GameObject> adjacentWalls = hashSets;
+    private HashSet<GameObject> perceivedNeighbors = new HashSet<GameObject>();
+    private HashSet<GameObject> adjacentWalls = new HashSet<GameObject>();
 
     // Start is called before the first frame update
     void Start()
@@ -30,12 +29,18 @@ public class AntagonistController : MonoBehaviour
         SetJumpPower();
         nma = GetComponent<NavMeshAgent>();
         rb = GetComponent<Rigidbody>();
+        target = null;
     }
 
     // Update is called once per frame
     void Update()
     {
         
+    }
+
+    public Transform Target()
+    {
+        return target;
     }
 
     public void ComputePath(Vector3 destination)
@@ -48,8 +53,8 @@ public class AntagonistController : MonoBehaviour
 
     public void ComputeForce(Transform target = null)
     {
-        var force = CalculateGoalForce(target) + CalculateAntagonistForce() + CalculateWallForce();
-        rb.AddForce(Vector3.ClampMagnitude(force, 10f));
+        var force = CalculateGoalForce(target) + CalculateNeighborForce() + CalculateWallForce();
+        rb.AddForce(new Vector3(Mathf.Clamp(force.x, -1, 1), 0.0f, Mathf.Clamp(force.z, -1, 1)) * speed);
     }
 
     private Vector3 CalculateGoalForce(Transform target)
@@ -62,8 +67,8 @@ public class AntagonistController : MonoBehaviour
         {
             if (GetVelocity() == Vector3.zero)
             {
-                moveHorizontal = Random.Range(-1, 2);
-                moveVertical = Random.Range(-1, 2);
+                moveHorizontal = Random.Range(-1f, 1f);
+                moveVertical = Random.Range(-1f, 1f);
                 desiredDirection = new Vector3(moveHorizontal, 0.0f, moveVertical);
             }
             else
@@ -71,59 +76,111 @@ public class AntagonistController : MonoBehaviour
                 moveHorizontal = GetVelocityX();
                 moveVertical = GetVelocityZ();
                 desiredDirection = new Vector3(moveHorizontal, 0.0f, moveVertical);
-                force += desiredDirection * speed;
             }
 
-            if (targetAcquired) // Pursue target
-            {
+            Ray wallRay = new Ray(transform.position, desiredDirection);
 
-            }
-            else // No target in range, patrol
+            if (Physics.Raycast(wallRay, out RaycastHit hit))
             {
-                Ray wallRay = new Ray(transform.position, desiredDirection);
-
-                if (Physics.Raycast(wallRay, out RaycastHit hit))
+                if (hit.distance <= 5 && hit.transform.CompareTag("Wall"))
                 {
-                    if (hit.distance <= 5 && !(hit.transform.CompareTag("Protagonist") || hit.transform.CompareTag("Key")))
+                    force -= desiredDirection;
+                    Ray wallRayLeft = new Ray(transform.position, Vector3.Cross(desiredDirection, Vector3.up));
+                    Ray wallRayRight = new Ray(transform.position, Vector3.Cross(desiredDirection, Vector3.down));
+                    Physics.Raycast(wallRayLeft, out RaycastHit hitLeft);
+                    Physics.Raycast(wallRayRight, out RaycastHit hitRight);
+
+                    if (((hitLeft.distance <= hitRight.distance) && hitLeft.transform.CompareTag("Wall") && hitRight.transform.CompareTag("Wall")) || (hitLeft.transform.CompareTag("Wall") && !hitRight.transform.CompareTag("Wall")) || ((hitLeft.distance > hitRight.distance) && (!hitLeft.transform.CompareTag("Wall") && !hitRight.transform.CompareTag("Wall"))))
                     {
-                        force -= (desiredDirection * speed);
-                        Ray wallRayLeft = new Ray(transform.position, Vector3.Cross(desiredDirection, Vector3.up));
-                        Ray wallRayRight = new Ray(transform.position, Vector3.Cross(desiredDirection, Vector3.down));
-                        Physics.Raycast(wallRayLeft, out RaycastHit hitLeft);
-                        Physics.Raycast(wallRayRight, out RaycastHit hitRight);
-
-                        if (hitLeft.distance <= hitRight.distance)
-                        {
-                            desiredDirectionSide = Vector3.Cross(desiredDirection, Vector3.down);
-                        }
-                        else
-                        {
-                            desiredDirectionSide = Vector3.Cross(desiredDirection, Vector3.up);
-                        }
-
-                        force += new Vector3(desiredDirectionSide.x, 0.0f, desiredDirectionSide.z) * speed;
+                        desiredDirectionSide = Vector3.Cross(desiredDirection, Vector3.down);
+                    }
+                    else if (((hitLeft.distance > hitRight.distance) && hitLeft.transform.CompareTag("Wall") && hitRight.transform.CompareTag("Wall")) || (!hitLeft.transform.CompareTag("Wall") && hitRight.transform.CompareTag("Wall")) || ((hitLeft.distance <= hitRight.distance) && (!hitLeft.transform.CompareTag("Wall") && !hitRight.transform.CompareTag("Wall"))))
+                    {
+                        desiredDirectionSide = Vector3.Cross(desiredDirection, Vector3.up);
                     }
                     else
                     {
-                        force += desiredDirection * speed;
+                        desiredDirectionSide = Vector3.zero;
                     }
+                    
+                    force += new Vector3(desiredDirectionSide.x, 0.0f, desiredDirectionSide.z);
                 }
+                else
+                {
+                    force += desiredDirection;
+                }
+            }
+        }
+        else // Pursue or retrieve target.
+        {
+            desiredDirection = target.TransformPoint(Vector3.zero) - transform.TransformPoint(Vector3.zero);
+            force += desiredDirection * (5f / Vector3.Distance(target.position, transform.position));
+        }
+
+        return force;
+    }
+
+    private Vector3 CalculateNeighborForce()
+    {
+        Vector3 desiredDirection, desiredDirectionSide = Vector3.zero;
+        var force = Vector3.zero;
+
+        if (!targetAcquired) // Ignore other antagonists if in pursuit or recovery.
+        {
+            foreach (var antagonist in perceivedNeighbors)
+            {
+                desiredDirection = antagonist.transform.position - transform.position;
+                force -= desiredDirection;
+                Ray wallRayLeft = new Ray(transform.position, Vector3.Cross(desiredDirection, Vector3.up));
+                Ray wallRayRight = new Ray(transform.position, Vector3.Cross(desiredDirection, Vector3.down));
+                Physics.Raycast(wallRayLeft, out RaycastHit hitLeft);
+                Physics.Raycast(wallRayRight, out RaycastHit hitRight);
+
+
+                if ((hitLeft.distance <= 3) && hitLeft.transform.CompareTag("Antagonist"))
+                {
+                    desiredDirectionSide = Vector3.Cross(desiredDirection, Vector3.down);
+                }
+                if ((hitRight.distance <= 3) && hitRight.transform.CompareTag("Antagonist"))
+                {
+                    desiredDirectionSide = Vector3.Cross(desiredDirection, Vector3.up);
+                }
+
+                force += new Vector3(desiredDirectionSide.x, 0.0f, desiredDirectionSide.z);
             }
         }
 
         return force;
     }
 
-    private Vector3 CalculateAntagonistForce()
-    {
-        var force = Vector3.zero;
-
-        return force;
-    }
-
     private Vector3 CalculateWallForce()
     {
+        Vector3 desiredDirection, desiredDirectionSide = Vector3.zero;
         var force = Vector3.zero;
+
+        if (!targetAcquired) // Ignore walls if in pursuit or recovery.
+        {
+            foreach (var wall in adjacentWalls)
+            {
+                desiredDirection = wall.transform.position - transform.position;
+                force -= desiredDirection;
+                Ray wallRayLeft = new Ray(transform.position, Vector3.Cross(desiredDirection, Vector3.up));
+                Ray wallRayRight = new Ray(transform.position, Vector3.Cross(desiredDirection, Vector3.down));
+                Physics.Raycast(wallRayLeft, out RaycastHit hitLeft);
+                Physics.Raycast(wallRayRight, out RaycastHit hitRight);
+
+                if ((hitLeft.distance <= 5) && hitLeft.transform.CompareTag("Wall"))
+                {
+                    desiredDirectionSide = Vector3.Cross(desiredDirection, Vector3.down);
+                }
+                if ((hitRight.distance <= 5) && hitRight.transform.CompareTag("Wall"))
+                {
+                    desiredDirectionSide = Vector3.Cross(desiredDirection, Vector3.up);
+                }
+
+                force += new Vector3(desiredDirectionSide.x, 0.0f, desiredDirectionSide.z);
+            }
+        }
 
         return force;
     }
@@ -155,20 +212,23 @@ public class AntagonistController : MonoBehaviour
 
     public void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Key") || other.CompareTag("Protagonist") || other.CompareTag("Antagonist"))
+        if (other.CompareTag("Protagonist") && !targetAcquired)
+        {
+            target = other.gameObject.transform;
+            targetAcquired = true;
+        }
+
+        if (other.CompareTag("Key") && KeyController.keyDropped)
+        {
+            target = other.gameObject.transform;
+            targetAcquired = true;
+        }
+
+        if (other.CompareTag("Antagonist"))
         {
             perceivedNeighbors.Add(other.gameObject);
-
-            if (other.CompareTag("Protagonist") && !target.CompareTag("Key"))
-            {
-                target = other.gameObject.transform;
-            }
-
-            if (other.CompareTag("Key"))
-            {
-                target = other.gameObject.transform;
-            }
         }
+
         if (other.CompareTag("Wall"))
         {
             adjacentWalls.Add(other.gameObject);
@@ -181,9 +241,16 @@ public class AntagonistController : MonoBehaviour
         {
             perceivedNeighbors.Remove(other.gameObject);
         }
+
         if (adjacentWalls.Contains(other.gameObject))
         {
             adjacentWalls.Remove(other.gameObject);
+        }
+
+        if (other.CompareTag("Key") || other.CompareTag("Protagonist"))
+        {
+            target = null;
+            targetAcquired = false;
         }
     }
 

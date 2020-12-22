@@ -20,6 +20,7 @@ public class GamePlusController : MonoBehaviour
     public Text gameOverText;
     public int timeLimitInMinutes = 2;
     public static bool inPlay = false;
+    public static bool userControlled = false;
     public static bool timeLimitReached = false;
 
     private int timeLimitSeconds;
@@ -64,22 +65,27 @@ public class GamePlusController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetButton("Submit") && !inPlay && gameOver)
+        if (Input.GetButton("Submit") && !inPlay && !userControlled && gameOver)
         {
+            userControlled = true;
+            inPlay = true;
+            GetComponent<MGPIBT>().StartBehavior();
             authorshipText.text = "";
             promptText.text = "Press Esc to Start Over";
             gameRulesText.text = "";
             controlsText.text = "";
             TimeControllerPlus.instance.BeginTimer();
             MakeAnnouncement("Begin!", 5);
-            inPlay = true;
         }
 
         if (Input.GetButton("Cancel"))
         {
             inPlay = false;
+            userControlled = false;
             gameOver = true;
             timeLimitReached = false;
+            ProtagonistController.hasKey = false;
+            GetComponent<MGPIBT>().StopBehavior();
             SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         }
 
@@ -108,6 +114,7 @@ public class GamePlusController : MonoBehaviour
             inPlay = false;
             gameOver = true;
             timeLimitReached = true;
+            GetComponent<MGPIBT>().StopBehavior();
             gameOverText.text = "Time is up!\n" +
                 "GAME OVER\n" +
                 "Retry?\n" +
@@ -119,6 +126,7 @@ public class GamePlusController : MonoBehaviour
         {
             inPlay = false;
             gameOver = true;
+            GetComponent<MGPIBT>().StopBehavior();
             gameOverText.text = "You fell!\n" +
                 "GAME OVER\n" +
                 "Retry?\n" +
@@ -130,6 +138,7 @@ public class GamePlusController : MonoBehaviour
         {
             inPlay = false;
             gameOver = true;
+            GetComponent<MGPIBT>().StopBehavior();
             gameOverText.text = "You are a true\n" +
                 "WINNER\n" +
                 "Roll again?\n" +

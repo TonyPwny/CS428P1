@@ -10,6 +10,7 @@ using UnityEngine;
 public class KeyController : MonoBehaviour
 {
     public Light spotLight;
+    public static bool keyDropped = false;
 
     private Vector3 startingLocation;
     private Vector3 spotlightStartingLocation;
@@ -43,8 +44,9 @@ public class KeyController : MonoBehaviour
 
     public void KeyDropped(KeyController key, Vector3 position)
     {
-        key.GetComponentInParent<Transform>().position = position;
-        key.transform.localPosition += new Vector3(0f, 1.5f, 0f);
+        keyDropped = true;
+        key.GetComponentInParent<Transform>().localPosition = position;
+        key.transform.position += new Vector3(0f, 1.5f, 0f);
         key.gameObject.SetActive(true);
         key.GetComponent<Rigidbody>().isKinematic = false;
         key.GetComponent<Rigidbody>().AddForce(new Vector3(0f, 400f, 0f));
@@ -53,6 +55,7 @@ public class KeyController : MonoBehaviour
 
     private void KeyPickedUp(GameObject protagonist, KeyController key)
     {
+        keyDropped = false;
         protagonist.GetComponent<ProtagonistController>().HasKey(key);
         key.gameObject.SetActive(false);
         spotLight.gameObject.SetActive(false);
@@ -60,6 +63,7 @@ public class KeyController : MonoBehaviour
 
     private void KeyRetrieved(KeyController key)
     {
+        keyDropped = false;
         key.GetComponentInParent<Transform>().position = startingLocation;
         spotLight.transform.position = spotlightStartingLocation;
     }
