@@ -1,0 +1,13 @@
+Our project involves taking the initial assignment, "Roll a Ball" and integrating AI opponents in order to create a singleplayer experience.
+The AI have been developed using various methods learned during this course. Mainly, IBT and Social Forces are used to dictate AI Antagonistic
+behaviour. Using the IBT, we can tell the adversaries to Patrol until the time limit is reached. In addition, using a SequenceParallel we can 
+direct the adversaries to Pursue and Attack. If the player has obtained the key item, the adversaries will also attempt to jump on the user's 
+character. The adversaries also use social forces in order to take into account the movement of their neighbours and work as a crowd. Once the 
+target is within perception range, the user is set as the goal destination for the adversary and will path towards it while taking into account
+the forces acted upon it by its perceived neighbours. 
+
+Controls And Goal:
+In our game, the user uses WASD to move and Space to jump. ESC can be used to reset the game. Press Enter to close the instructions and start 
+the game. The user must collect the key in the bottom left of the map. The user then must traverse the map while attempting to avoid the
+enemies. If an enemy jumps on the user, the key is dropped and must be recovered. (Using space to jump over enemies when the user is 
+surrounded is helpful in recovery) If the user has the key item at the end of the map and walks into the spotlight, the user wins.
