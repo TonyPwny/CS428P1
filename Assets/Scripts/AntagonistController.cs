@@ -137,8 +137,8 @@ public class AntagonistController : MonoBehaviour
         {
             foreach (var antagonist in perceivedNeighbors)
             {
-                desiredDirection = antagonist.transform.position - transform.position;
-                force -= desiredDirection;
+                desiredDirection = transform.position - antagonist.transform.position;
+                force += desiredDirection;
                 Ray wallRayLeft = new Ray(transform.position, Vector3.Cross(desiredDirection, Vector3.up));
                 Ray wallRayRight = new Ray(transform.position, Vector3.Cross(desiredDirection, Vector3.down));
                 Physics.Raycast(wallRayLeft, out RaycastHit hitLeft);
@@ -229,9 +229,13 @@ public class AntagonistController : MonoBehaviour
         {
             target = other.gameObject.transform;
             targetAcquired = true;
+            perceivedNeighbors.Add(other.gameObject);
         }
-        
-        perceivedNeighbors.Add(other.gameObject);
+
+        if (other.CompareTag("Antagonist"))
+        {
+            perceivedNeighbors.Add(other.gameObject);
+        }
 
         if (other.CompareTag("Wall"))
         {
