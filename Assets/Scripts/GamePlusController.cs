@@ -49,18 +49,12 @@ public class GamePlusController : MonoBehaviour
             "TAKE the KEY to the GOAL AREA BEFORE the TIME LIMIT\n" +
             "TO WIN THE GAME.\n" +
             "If an enemy JUMPS INTO YOU and is HIGHER THAN YOU at impact,\n" +
-            "you will be STRUCK AWAY then UPWARDS,\n" +
-            "and you will DROP THE KEY if you are holding it.\n" +
-            "An enemy that retrieves a dropped key\n" +
-            "will immediately RETURN it to its ORIGINAL LOCATION.\n" +
             "FALLING OFF is an INSTANT LOSS, so be careful of attacks!\n" +
-            "You can DEFEND yourself by JUMPING INTO ENEMIES to STUN them,\n" +
-            "but only if you are HIGHER THAN THEM at the point of impact.";
+            "You can DEFEND yourself by JUMPING INTO ENEMIES.\n" +
+            "Try to be HIGHER THAN THEM at the point of impact.";
         promptText.text = "Press Enter/Return to Begin";
         controlsText.text = "Use W, S, A, D to Move\n" +
-            "Spacebar to Jump\n\n" +
-            "PRESS RIGHT SHIFT\n" +
-            "FOR DEMO MODE";
+            "Spacebar to Jump";
         announcementsText.text = "Super Roll a Ball Deluxe";
         gameOverText.text = "";
     }

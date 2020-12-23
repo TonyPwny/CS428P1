@@ -225,7 +225,7 @@ public class AntagonistController : MonoBehaviour
 
     public void OnTriggerEnter(Collider other)
     {
-        if ((other.CompareTag("Protagonist") && !targetAcquired) || ((other.CompareTag("Key") && KeyController.keyDropped) && !targetAcquired))
+        if (other.CompareTag("Protagonist"))
         {
             target = other.gameObject.transform;
             targetAcquired = true;

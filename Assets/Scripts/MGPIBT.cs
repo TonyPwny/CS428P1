@@ -112,54 +112,6 @@ public class MGPIBT : MonoBehaviour
 
         return antagonistEvaluate;
     }
-    protected Node GetKey()
-    {
-        return new LeafInvoke(() =>
-        {
-
-        });
-    }
-
-    protected Node GoToExit()
-    {
-        return new LeafInvoke(() =>
-        {
-
-        });
-    }
-    protected Node Evade()
-    {
-        return new LeafInvoke(() =>
-        {
-
-        });
-    }
-
-    protected Node SeqT_Objective()
-    {
-        Node objective = new Sequence(
-            new DecoratorLoopSuccess(
-                this.GetKey()
-                ),
-            new DecoratorLoopSuccess(
-                this.GoToExit()
-            ));
-
-        return objective;
-    }
-
-    protected Node SeqP_ProtagonistRoot()
-    {
-        Node protagonistIBT = new SequenceParallel(
-            new DecoratorLoopSuccess(
-                this.SeqT_Objective()
-                ),
-            new DecoratorLoop(
-                this.Evade()
-                ));
-
-        return protagonistIBT;
-    }
 
     protected Node SeqP_AntagonistsRoot()
     {
@@ -178,12 +130,9 @@ public class MGPIBT : MonoBehaviour
 
     protected Node BuildTreeRoot()
     {
-        Node gameIBT = new SelectorParallel(
-            new DecoratorLoopSuccess(
-                this.SeqP_ProtagonistRoot()),
-            new DecoratorLoopSuccess(
+        Node gameIBT = new DecoratorLoopSuccess(
                 this.SeqP_AntagonistsRoot()
-                ));
+                );
 
         return gameIBT;
     }

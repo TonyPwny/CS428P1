@@ -61,23 +61,11 @@ public class KeyController : MonoBehaviour
         spotLight.gameObject.SetActive(false);
     }
 
-    private void KeyRetrieved(KeyController key)
-    {
-        keyDropped = false;
-        key.GetComponentInParent<Transform>().position = startingLocation;
-        spotLight.transform.position = spotlightStartingLocation;
-    }
-
     private void OnTriggerEnter(Collider collision)
     {
         if (GamePlusController.inPlay && collision.gameObject.CompareTag("Protagonist") && (Vector3.Distance(collision.transform.position, transform.position) < 1))
         {
             KeyPickedUp(collision.gameObject, this);
-        }
-
-        if (GamePlusController.inPlay && !(transform.position == startingLocation) && collision.gameObject.CompareTag("Antagonist") && (Vector3.Distance(collision.transform.position, transform.position) < 1))
-        {
-            KeyRetrieved(this);
         }
     }
 }
