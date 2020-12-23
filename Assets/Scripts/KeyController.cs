@@ -51,6 +51,7 @@ public class KeyController : MonoBehaviour
         key.GetComponent<Rigidbody>().isKinematic = false;
         key.GetComponent<Rigidbody>().AddForce(new Vector3(0f, 400f, 0f));
         spotLight.gameObject.SetActive(true);
+        GamePlusController.instance.MakeAnnouncement("The key has been knocked off of you!", 5);
     }
 
     private void KeyPickedUp(GameObject protagonist, KeyController key)
@@ -66,6 +67,7 @@ public class KeyController : MonoBehaviour
         if (GamePlusController.inPlay && collision.gameObject.CompareTag("Protagonist") && (Vector3.Distance(collision.transform.position, transform.position) < 1))
         {
             KeyPickedUp(collision.gameObject, this);
+            GamePlusController.instance.MakeAnnouncement("You have the key! Go to the exit!", 5);
         }
     }
 }
