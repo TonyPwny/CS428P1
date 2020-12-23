@@ -35,14 +35,7 @@ public class AntagonistController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (target != null)
-        {
-            if (target.CompareTag("Key") && (ProtagonistController.hasKey || !KeyController.keyDropped))
-            {
-                targetAcquired = false;
-                target = null;
-            }
-        }
+
     }
 
     public Transform Target()
@@ -71,9 +64,9 @@ public class AntagonistController : MonoBehaviour
         float moveHorizontal, moveVertical;
         var force = Vector3.zero;
 
-        if (target == null) // Patrol
+        if (!targetAcquired) // Patrol
         {
-            if (GetVelocity() == Vector3.zero)
+            if (Mathf.Approximately(GetVelocityX(), 0) && Mathf.Approximately(GetVelocityY(), 0) && Mathf.Approximately(GetVelocityZ(), 0))
             {
                 moveHorizontal = Random.Range(-1f, 1f);
                 moveVertical = Random.Range(-1f, 1f);
@@ -177,8 +170,8 @@ public class AntagonistController : MonoBehaviour
         {
             foreach (var wall in adjacentWalls)
             {
-                desiredDirection = wall.transform.position - transform.position;
-                force -= desiredDirection;
+                desiredDirection = transform.position - wall.transform.position;
+                force += desiredDirection;
                 Ray wallRayLeft = new Ray(transform.position, Vector3.Cross(desiredDirection, Vector3.up));
                 Ray wallRayRight = new Ray(transform.position, Vector3.Cross(desiredDirection, Vector3.down));
                 Physics.Raycast(wallRayLeft, out RaycastHit hitLeft);
@@ -210,6 +203,11 @@ public class AntagonistController : MonoBehaviour
         return rb.velocity.x;
     }
 
+    private float GetVelocityY()
+    {
+        return rb.velocity.y;
+    }
+
     private float GetVelocityZ()
     {
         return rb.velocity.z;
@@ -227,22 +225,13 @@ public class AntagonistController : MonoBehaviour
 
     public void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Protagonist") && !targetAcquired)
+        if ((other.CompareTag("Protagonist") && !targetAcquired) || ((other.CompareTag("Key") && KeyController.keyDropped) && !targetAcquired))
         {
             target = other.gameObject.transform;
             targetAcquired = true;
         }
-
-        if (other.CompareTag("Key") && KeyController.keyDropped)
-        {
-            target = other.gameObject.transform;
-            targetAcquired = true;
-        }
-
-        if (other.CompareTag("Antagonist"))
-        {
-            perceivedNeighbors.Add(other.gameObject);
-        }
+        
+        perceivedNeighbors.Add(other.gameObject);
 
         if (other.CompareTag("Wall"))
         {
@@ -262,7 +251,6 @@ public class AntagonistController : MonoBehaviour
             adjacentWalls.Remove(other.gameObject);
         }
     }
-
 
     private void OnCollisionExit(Collision collision)
     {
